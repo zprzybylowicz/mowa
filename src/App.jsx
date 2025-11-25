@@ -8,44 +8,61 @@ function App() {
     browserSupportsSpeechRecognition,
   } = useSpeechRecognition();
 
-  console.log("browserSupportsSpeechRecognition:", browserSupportsSpeechRecognition);
-  console.log("listening:", listening);
-  console.log("transcript:", transcript);
-
   if (!browserSupportsSpeechRecognition) {
     return <span>Twoja przeglądarka nie wspiera rozpoznawania mowy.</span>;
   }
 
   const startListening = () => {
-    console.log("Kliknięto START");
-    try {
-      SpeechRecognition.startListening({
-        continuous: true,
-        language: "pl-PL",
-      });
-    } catch (e) {
-      console.error("Błąd przy startListening:", e);
-    }
+    if (listening) return; // ignoruj jeśli już słucha
+
+    console.log("START");
+    SpeechRecognition.startListening({
+      continuous: true,
+      language: "pl-PL",
+    });
   };
 
   const stopListening = () => {
-    console.log("Kliknięto STOP");
+    if (!listening) return; // ignoruj jeśli już nie słucha
+
+    console.log("STOP");
     SpeechRecognition.stopListening();
+
+    //  AUTOZAPIS DO PLIKU TXT PO STOP
+    saveToFile();
+  };
+
+  const saveToFile = () => {
+    if (!transcript || transcript.trim() === "") {
+      alert("Brak tekstu do zapisania.");
+      return;
+    }
+
+    const blob = new Blob([transcript], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "mowa.txt";
+    a.click();
+
+    URL.revokeObjectURL(url);
   };
 
   return (
     <div style={{ padding: "2rem", fontFamily: "sans-serif" }}>
       <h1>Rozpoznawanie mowy w React</h1>
 
-      <p>Status: {listening ? "🎙️ słucham..." : "⏹️ nie słucham"}</p>
-      <p>Wsparcie przeglądarki: {browserSupportsSpeechRecognition ? "TAK" : "NIE"}</p>
+      <p>Status: {listening ? " słucham..." : "nie słucham"}</p>
 
-      <button onClick={startListening} style={{ marginRight: "0.5rem" }}>
+      <button onClick={startListening} disabled={listening} style={{ marginRight: "0.5rem" }}>
         Start (PL)
       </button>
-      <button onClick={stopListening} style={{ marginRight: "0.5rem" }}>
+
+      <button onClick={stopListening} disabled={!listening} style={{ marginRight: "0.5rem" }}>
         Stop
       </button>
+
       <button onClick={resetTranscript}>Wyczyść tekst</button>
 
       <h2>Tekst z mikrofonu:</h2>
