@@ -51,7 +51,7 @@ function App() {
 
   return (
     <div style={{ padding: "2rem", fontFamily: "sans-serif" }}>
-      <h1>Rozpoznawanie mowy w React</h1>
+      <h1>Rozpoznawanie mowy</h1>
 
       <p>Status: {listening ? " słucham..." : " nie słucham"}</p>
       <p>Wsparcie przeglądarki: {browserSupportsSpeechRecognition ? "TAK" : "NIE"}</p>
