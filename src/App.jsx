@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
 
 function App() {
@@ -9,33 +8,42 @@ function App() {
     browserSupportsSpeechRecognition,
   } = useSpeechRecognition();
 
-  useEffect(() => {
-    console.log("Transcript:", transcript);
-  }, [transcript]);
+  console.log("browserSupportsSpeechRecognition:", browserSupportsSpeechRecognition);
+  console.log("listening:", listening);
+  console.log("transcript:", transcript);
 
   if (!browserSupportsSpeechRecognition) {
     return <span>Twoja przeglądarka nie wspiera rozpoznawania mowy.</span>;
   }
 
   const startListening = () => {
-    SpeechRecognition.startListening({
-      continuous: true,
-      language: "pl-PL", // polski
-    });
+    console.log("Kliknięto START");
+    try {
+      SpeechRecognition.startListening({
+        continuous: true,
+        language: "pl-PL",
+      });
+    } catch (e) {
+      console.error("Błąd przy startListening:", e);
+    }
+  };
+
+  const stopListening = () => {
+    console.log("Kliknięto STOP");
+    SpeechRecognition.stopListening();
   };
 
   return (
     <div style={{ padding: "2rem", fontFamily: "sans-serif" }}>
       <h1>Rozpoznawanie mowy w React</h1>
-      <p>Status: {listening ? " słucham..." : "nie słucham"}</p>
+
+      <p>Status: {listening ? "🎙️ słucham..." : "⏹️ nie słucham"}</p>
+      <p>Wsparcie przeglądarki: {browserSupportsSpeechRecognition ? "TAK" : "NIE"}</p>
 
       <button onClick={startListening} style={{ marginRight: "0.5rem" }}>
         Start (PL)
       </button>
-      <button
-        onClick={SpeechRecognition.stopListening}
-        style={{ marginRight: "0.5rem" }}
-      >
+      <button onClick={stopListening} style={{ marginRight: "0.5rem" }}>
         Stop
       </button>
       <button onClick={resetTranscript}>Wyczyść tekst</button>
